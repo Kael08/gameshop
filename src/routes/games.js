@@ -16,8 +16,9 @@ export const handleGames = async(req,res) => {
         req.on('data', (chunk) => {body +=chunk.toString()})
         req.on('end',async()=> {
             try {
-                const {name,price} = JSON.parse(body)
-                await dbClient.query('INSERT INTO games (name,price) VALUES ($1,$2)',[name,price])
+                const {name,price,genres,game_img} = JSON.parse(body)
+                const gameImgBuffer = Buffer.from(game_img,'base64')
+                await dbClient.query('INSERT INTO games (name,price,genres,game_img) VALUES ($1,$2,$3,$4)',[name,price,genres,gameImgBuffer])
                 res.writeHead(201)
                 res.end('Game added successfuly')
             } catch(err){
