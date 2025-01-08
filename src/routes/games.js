@@ -3,13 +3,21 @@ import dbClient from "../db/client.js"
 export const handleGames = async(req,res) => {
     if(req.method==='GET') {
         try {
-            const result = await dbClient.query('SELECT * FROM games')
-            res.writeHead(200,{'ContentType': 'application/json'})
-            res.end(JSON.stringify(result.rows))
-        } catch(err) {
-            console.error('Error executing query', err.stack)
-            res.writeHead(500)
-            res.end('Error fetching data')
+            const result = await dbClient.query('SELECT * FROM games');
+            const games = result.rows.map(game => ({
+                ...game,
+                game_img: game.game_img.toString('base64'),
+            }));
+    
+            res.writeHead(200, {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*', // Разрешить доступ с любого источника
+            });
+            res.end(JSON.stringify(games));
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            res.writeHead(500, { 'Access-Control-Allow-Origin': 'http://localhost:5173' });
+            res.end('Error fetching data');
         }
     } else if (req.method==='POST') {
         let body =''
