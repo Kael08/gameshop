@@ -11,7 +11,7 @@ export const handleGames = async(req,res) => {
     
             res.writeHead(200, {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*', // Разрешить доступ с любого источника
+                'Access-Control-Allow-Origin': 'http://localhost:5173', // Разрешить доступ с любого источника
             });
             res.end(JSON.stringify(games));
         } catch (err) {
@@ -35,7 +35,24 @@ export const handleGames = async(req,res) => {
                 res.end('Error adding game')
             }
         })
-    } else {
+    } else if(req.method==='DELETE') {
+        let body =''
+        req.on('data',(chunk)=>{body+=chunk.toString()})
+        req.on('end',async()=>{
+            try {
+                const {id}=JSON.parse(body)
+                await dbClient.query('DELETE FROM games WHERE id = $1',[id])
+                res.writeHead(200)
+                res.end('Game delete successfuly')
+            } catch(err){
+                console.error('Error executing query',err.stack)
+                    res.writeHead(500)
+                    res.end('Error deleting game')
+            }
+        })
+
+    }
+    else {
         res.writeHead(404)
         res.end('Not Found')
     }
