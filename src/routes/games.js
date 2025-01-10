@@ -1,4 +1,36 @@
 import dbClient from "../db/client.js"
+import express from 'express'
+const router = express.Router()
+
+// GET- Запрос на получение всех игр
+router.get('/',async(req,res)=>{
+    try {
+        // Запрос в SQL
+        const result = await dbClient.query('SELECT * FROM games')
+        // Переменная для хранения игр
+        const games = result.rows.map(game => ({
+            ...game, 
+            game_img:game.game_img ? game.game_img.toString('base64'):null,
+        }))
+
+        /*res.writeHead(200, {
+            'Content-Type': 'application/json', // Тип данных - JSON
+            'Access-Control-Allow-Origin': 'http://localhost:5173', // Разрешить доступ только источнику с этого порта, иначе писать *
+        })    
+        // Отправка данных в JSON
+        res.end(JSON.stringify(games))*/
+        // Отправка данных в JSON
+        res.status(200).json(games)
+    } catch (error){
+        /*console.error('Ошибка при выполнении запроса', err.stack)
+        res.writeHead(500, { 'Access-Control-Allow-Origin': 'http://localhost:5173' })
+        res.end(JSON.stringify({error:'Ошибка при выборке данных',details: err.message}))*/
+        console.error('Ошибка при выполнении запроса', err.stack)
+        res.status(500).json({error:'Ошибка при выборке данных',details: err.message})
+    }
+})
+
+export default router
 
 export const handleGames = async(req,res) => {
     if(req.method==='GET') {
@@ -55,5 +87,30 @@ export const handleGames = async(req,res) => {
     else {
         res.writeHead(404)
         res.end('Not Found')
+    }
+
+    // Запрос на получение всех игр
+    async function getAllGames(){
+        try {
+            // Запрос в SQL
+            const result = await dbClient.query('SELECT * FROM games')
+            // Переменная для хранения игр
+            const games = result.rows.map(game => ({
+                ...game, 
+                game_img:game.game_img ? game.game_img.toString('base64'):null,
+            }))
+
+            res.writeHead(200, {
+                'Content-Type': 'application/json', // Тип данных - JSON
+                'Access-Control-Allow-Origin': 'http://localhost:5173', // Разрешить доступ только источнику с этого порта, иначе писать *
+            })
+            // Отправка данных в JSON
+            res.end(JSON.stringify(games))
+        } catch (error){
+            console.error('Ошибка при выполнении запроса', err.stack);
+            res.writeHead(500, { 'Access-Control-Allow-Origin': 'http://localhost:5173' });
+            res.end(JSON.stringify({error:'Ошибка при выборке данных',details: err.message}));
+        }
+        
     }
 }
