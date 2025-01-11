@@ -34,9 +34,6 @@ router.get('/',async(req,res)=>{
 router.get('/:genres',async(req,res)=> {
     const {genres} = req.params
     try {
-        if(!genres){
-            return res.status(400).json({error: 'Необходимо указать жанры для фильтрации'})
-        }
         // Преобразуем жанры из строки в массив
         const genresArray = genres.split(',')
 

@@ -29,7 +29,7 @@ app.use((req,res)=> {
 // Запуск сервера
 const PORT = process.env.PORT||3000
 http.createServer(app).listen(PORT,() => {
-  console.log('Сервер запущен на http://localhost:${PORT}')
+  console.log(`Сервер запущен на http://localhost:${PORT}`)
 })
 
 /*const server = http.createServer((req, res) => {
