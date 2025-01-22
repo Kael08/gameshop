@@ -1,7 +1,8 @@
 import http from 'http'
-//import {handleGames} from './routes/games.js'
 import express from 'express'
 import gamesRouter from './routes/games.js'
+import authRouter from './routes/auth.js'
+import signUpRouter from './routes/sign-up.js'
 
 const app = express()
 
@@ -20,6 +21,12 @@ app.use((req,res,next) =>{
 })
 // Роутер для /games
 app.use('/games',gamesRouter)
+
+// Роутер для /auth(Аутентификация и Авторизация)
+app.use('/auth',authRouter)
+
+// Роутер для /sign-up(Регистрация)
+app.use('/sign-up',signUpRouter)
 
 // Обработчик для всех остальных путей
 app.use((req,res)=> {
