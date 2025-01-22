@@ -6,27 +6,13 @@ const router =express.Router()
 router.post('/',async(req,res)=>{
     const {login,password,username} = req.body
 
+    // Проверка на пустоту
     if (!login || !password || !username) {
         return res.status(400).json({ error: "Логин, пароль и имя пользователя обязательны" });
     }
 
     try{
-        /*const data = await dbClient.
-        query('SELECT * FROM users_credential')
-
-        const usersInfo = await dbClient.
-        query('SELECT * FROM users_info')
-
-        for(u in data.rows){
-            if(u.login===login)
-                return res.status(404).json({error:`Данный логин уже занят!`})
-        }
-
-        for(u in usersInfo.rows){
-            if(u.username===username)
-                return res.status(404).json({error:`Данный никнекм уже занят!`})
-        }*/
-
+        // Проверка, что логин и никнейм не существуют
         const loginCheck = await  dbClient.query(
             'SELECT * FROM users_credential WHERE login=$1',
             [login]
@@ -45,6 +31,7 @@ router.post('/',async(req,res)=>{
             return res.status(400).json({error:"Данный никнейм уже занят!"})
         }
 
+        // Запрос на добавление никнейма и возвращение id этого объекта
         const userInfoResult = await dbClient.query(
             'INSERT INTO users_info (username) VALUES ($1) RETURNING user_info_id',
             [username]
@@ -52,9 +39,7 @@ router.post('/',async(req,res)=>{
 
         const userInfoId = userInfoResult.rows[0].user_info_id
 
-        /*const user_info_id = await dbClient.
-        query('SELECT user_info_id FROM users_info WHERE username= $1',[username])*/
-
+        // Запрос на добавление FK, LOGIN & PASSWORD
         await  dbClient.query(
             'INSERT INTO users_credential (user_info_id,login,password) VALUES ($1,$2,$3)',
             [userInfoId,login,password]

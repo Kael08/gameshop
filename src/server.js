@@ -3,6 +3,7 @@ import express from 'express'
 import gamesRouter from './routes/games.js'
 import authRouter from './routes/auth.js'
 import signUpRouter from './routes/sign-up.js'
+import usersRouter from './routes/users.js'
 
 const app = express()
 
@@ -19,7 +20,7 @@ app.use((req,res,next) =>{
     next()
   }
 })
-// Роутер для /games
+// Роутер для /games(Игр)
 app.use('/games',gamesRouter)
 
 // Роутер для /auth(Аутентификация и Авторизация)
@@ -27,6 +28,9 @@ app.use('/auth',authRouter)
 
 // Роутер для /sign-up(Регистрация)
 app.use('/sign-up',signUpRouter)
+
+// Роутер для /users(Пользователей)
+app.use('/users',usersRouter)
 
 // Обработчик для всех остальных путей
 app.use((req,res)=> {
