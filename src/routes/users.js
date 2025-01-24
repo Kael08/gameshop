@@ -38,43 +38,6 @@ router.get('/info/:id',async(req,res)=>{
     }
 })
 
-
-// GET - Запрос на получение личной информации пользователей
-router.get('/credential',async(req,res)=>{
-    try{
-        const result = await dbClient.query
-        (
-            'SELECT * FROM users_credential'
-        )
-
-        res.status(200).json(result.rows)
-    } catch(error){
-        console.error('Ошибка при выполнении запроса',error.stack)
-        res.status(500).json({error:"Ошибка сервера:",details:error})
-    }
-})
-
-
-// GET - Запрос на получение УД юзера по id
-router.get('/credential/:id',async(req,res)=>{
-    const {id} = req.params
-    try{
-        const result = await dbClient.query(
-            'SELECT * FROM users_credential WHERE user_credential_id = $1',
-            [id]
-        )
-
-        if(result.rows.length===0){
-            return res.status(404).json(`Пользователь с id ${id} не найден`)
-        }
-
-        res.status(200).json(result.rows)
-    }catch(error){
-        console.error('Ошибка при выполнении запроса ', error.stack)
-        res.status(500).json({error:"Ошибка сервера:",details:error})
-    }
-})
-
 // post - запрос на добавление email
 router.post('/info/addEmail',async(req,res)=>{
     const{id,email} = req.body
@@ -160,5 +123,65 @@ router.post('/info/addImage',async(req,res)=>{
     }
 })
 
+// GET - Запрос на получение личной информации пользователей
+router.get('/credential',async(req,res)=>{
+    try{
+        const result = await dbClient.query
+        (
+            'SELECT * FROM users_credential'
+        )
+
+        res.status(200).json(result.rows)
+    } catch(error){
+        console.error('Ошибка при выполнении запроса',error.stack)
+        res.status(500).json({error:"Ошибка сервера:",details:error})
+    }
+})
+
+// GET - Запрос на получение УД юзера по id
+router.get('/credential/:id',async(req,res)=>{
+    const {id} = req.params
+    try{
+        const result = await dbClient.query(
+            'SELECT * FROM users_credential WHERE user_credential_id = $1',
+            [id]
+        )
+
+        if(result.rows.length===0){
+            return res.status(404).json(`Пользователь с id ${id} не найден`)
+        }
+
+        res.status(200).json(result.rows)
+    }catch(error){
+        console.error('Ошибка при выполнении запроса ', error.stack)
+        res.status(500).json({error:"Ошибка сервера:",details:error})
+    }
+})
+
+// delete - запрос на удаление пользователя
+router.delete('/delete/:id',async(req,res) => {
+    const {id} = req.params
+    try {
+        const deleteCredentialResult = await dbClient.query(
+            'DELETE FROM users_credential WHERE user_credential_id=$1 RETURNING user_info_id',
+            [id]
+        )
+
+        if(deleteCredentialResult.rows.length===0){
+            return res.status(404).json({error:'Пользователь не найден'})
+        }
+        
+        const userInfoId = deleteCredentialResult.rows[0].user_info_id
+
+        await dbClient.query(
+            'DELETE FROM users_info WHERE user_info_id=$1',
+            [userInfoId]
+        )
+        res.status(200).json('Данные пользователя успешно удалены')
+    } catch(error) {
+        console.error('Ошибка при выполнении запроса', error.stack)
+        res.status(500).send('Ошибка удаления игры')
+    }
+})
 
 export default router
