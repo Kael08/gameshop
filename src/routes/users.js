@@ -189,4 +189,20 @@ router.delete('/delete/:user_id',async(req,res) => {
     }
 })
 
+// GET - запрос на получение списка из логина, пароля и никнейма юзера
+router.get('/',async(req,res)=>{
+    try{
+        const result = await dbClient.query(
+            `SELECT users_credential.login, users_credential.password, users_info.username
+            FROM users_credential
+            INNER JOIN users_info ON users_credential.user_info_id=users_info.user_info_id`
+        )
+
+        res.status(200).json(result.rows)
+    }catch(error){
+        console.error('Ошибка при выполнении запроса', error.stack)
+        res.status(500).send('Ошибка удаления игры')  
+    }
+})
+
 export default router
