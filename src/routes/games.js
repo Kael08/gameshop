@@ -63,9 +63,9 @@ router.post('/',async(req,res)=> {
 
 // DELETE - запрос на удаление игры
 router.delete('/',async(req,res)=> {
-    const {id} = req.body
+    const {game_id} = req.body
     try{
-        await dbClient.query('DELETE FROM games WHERE id = $1',[id])
+        await dbClient.query('DELETE FROM games WHERE game_id = $1',[game_id])
         res.status(200).send('Игра успешно удалена')
     } catch(error){
         console.error('Ошибка при выполнении запроса', error.stack)
@@ -74,14 +74,14 @@ router.delete('/',async(req,res)=> {
 })
 
 // GET - запрос на получение игры по её id
-router.get('/gamePage/:id', async(req,res)=> {
-    const {id} = req.params
+router.get('/gamePage/:game_id', async(req,res)=> {
+    const {game_id} = req.params
     try {
-        const result = await dbClient.query('SELECT * FROM games WHERE id= $1',[id])
+        const result = await dbClient.query('SELECT * FROM games WHERE game_id= $1',[game_id])
         
         // Проверка наличия игры
         if(result.rows.length===0){
-            return res.status(404).json({error:`Игра с id=${id} не найдена`})
+            return res.status(404).json({error:`Игра с id=${game_id} не найдена`})
         }
 
         // Форматируем данные (например, преобразуем изображение)
@@ -92,7 +92,7 @@ router.get('/gamePage/:id', async(req,res)=> {
         
         res.status(200).json(game)
     } catch(error){
-        console.error('Ошибка поиска игры с id:',id)
+        console.error('Ошибка поиска игры с id:',game_id)
         res.status(500).json({error:'Ошибка сервера'})
     }
 })

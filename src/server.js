@@ -4,6 +4,7 @@ import gamesRouter from './routes/games.js'
 import authRouter from './routes/auth.js'
 import signUpRouter from './routes/sign-up.js'
 import usersRouter from './routes/users.js'
+import userGamesRouter from './routes/user-games.js'
 
 const app = express()
 
@@ -31,6 +32,9 @@ app.use('/sign-up',signUpRouter)
 
 // Роутер для /users(Пользователей)
 app.use('/users',usersRouter)
+
+// Роутер для /user-games(игры пользователей)
+app.use('/user-games',userGamesRouter)
 
 // Обработчик для всех остальных путей
 app.use((req,res)=> {

@@ -20,18 +20,23 @@ router.get('/info',async(req,res)=>{
 })
 
 // GET -Запрос на получение ЛИ юзера по id
-router.get('/info/:id',async(req,res)=>{
-    const {id} = req.params
+router.get('/info/:user_info_id',async(req,res)=>{
+    const {user_info_id} = req.params
     try{
         const result = await dbClient.query(
-            'SELECT * FROM users_info WHERE user_info_id=$1',[id]
+            'SELECT * FROM users_info WHERE user_info_id=$1',[user_info_id]
         )
 
         if(result.rows.length===0){
-                return res.status(404).json(`Пользователь с id ${id} не найден`)
+                return res.status(404).json(`Пользователь с id ${user_info_id} не найден`)
             }
 
-        res.status(200).json(result.rows)
+        const user = {
+            ...result.rows[0],
+            image_data:result.rows[0].image_data ? result.rows[0].image_data.toString('base64'):null,
+        }
+
+        res.status(200).json(user)
     } catch(error){
         console.error('Ошибка при выполнении запросы ',error.stack)
         res.status(500).json({error:"Ошибка сервера:",details:error})
@@ -40,19 +45,19 @@ router.get('/info/:id',async(req,res)=>{
 
 // post - запрос на добавление email
 router.post('/info/addEmail',async(req,res)=>{
-    const{id,email} = req.body
+    const{user_info_id,email} = req.body
     try{
         const emailCheck = await dbClient.query(
             'SELECT * FROM users_info WHERE email=$1',
             [email]
         )
 
-        if(emailCheck.rows.length===0)
+        if(emailCheck.rows.length>0)
             return res.status(400).json("Данная почта уже занята")
 
         const userCheck = await dbClient.query(
             'SELECT * FROM users_info WHERE user_info_id = $1',
-            [id]
+            [user_info_id]
         );
         
         if (userCheck.rows.length === 0) {
@@ -61,7 +66,7 @@ router.post('/info/addEmail',async(req,res)=>{
 
         await dbClient.query(
             'UPDATE users_info SET email = $1 WHERE user_info_id=$2',
-            [email,id]
+            [email,user_info_id]
         )
 
         res.status(200).json('email успешно дабавлен')
@@ -73,11 +78,11 @@ router.post('/info/addEmail',async(req,res)=>{
 
 // post - запрос на добавление bio
 router.post('/info/addBio',async(req,res)=>{
-    const{id,bio} = req.body
+    const{user_info_id,bio} = req.body
     try{
         const userCheck = await dbClient.query(
             'SELECT * FROM users_info WHERE user_info_id = $1',
-            [id]
+            [user_info_id]
         );
         
         if (userCheck.rows.length === 0) {
@@ -86,7 +91,7 @@ router.post('/info/addBio',async(req,res)=>{
 
         await dbClient.query(
             'UPDATE users_info SET bio = $1 WHERE user_info_id=$2',
-            [bio,id]
+            [bio,user_info_id]
         )
 
         res.status(200).json('bio успешно дабавлен')
@@ -98,11 +103,11 @@ router.post('/info/addBio',async(req,res)=>{
 
 // post - запрос на добавление аватара
 router.post('/info/addImage',async(req,res)=>{
-    const {id,image_data} = req.body
+    const {user_info_id,image_data} = req.body
     try{
         const idCheck = await dbClient.query(
             'SELECT * FROM users_info WHERE user_info_id=$1',
-            [id]
+            [user_info_id]
         )
 
         if(idCheck.rows===0)
@@ -112,7 +117,7 @@ router.post('/info/addImage',async(req,res)=>{
 
         await dbClient.query(
             'UPDATE users_info SET image_data = $1 WHERE user_info_id = $2',
-            [imageBuffer,id]
+            [imageBuffer,user_info_id]
         )
 
         res.status(201).json('Аватар пользователя успешно добавлен')
@@ -139,16 +144,16 @@ router.get('/credential',async(req,res)=>{
 })
 
 // GET - Запрос на получение УД юзера по id
-router.get('/credential/:id',async(req,res)=>{
-    const {id} = req.params
+router.get('/credential/:user_credential_id',async(req,res)=>{
+    const {user_credential_id} = req.params
     try{
         const result = await dbClient.query(
             'SELECT * FROM users_credential WHERE user_credential_id = $1',
-            [id]
+            [user_credential_id]
         )
 
         if(result.rows.length===0){
-            return res.status(404).json(`Пользователь с id ${id} не найден`)
+            return res.status(404).json(`Пользователь с id ${user_credential_id} не найден`)
         }
 
         res.status(200).json(result.rows)
@@ -159,12 +164,12 @@ router.get('/credential/:id',async(req,res)=>{
 })
 
 // delete - запрос на удаление пользователя
-router.delete('/delete/:id',async(req,res) => {
-    const {id} = req.params
+router.delete('/delete/:user_id',async(req,res) => {
+    const {user_id} = req.params
     try {
         const deleteCredentialResult = await dbClient.query(
             'DELETE FROM users_credential WHERE user_credential_id=$1 RETURNING user_info_id',
-            [id]
+            [user_id]
         )
 
         if(deleteCredentialResult.rows.length===0){
