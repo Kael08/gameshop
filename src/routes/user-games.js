@@ -45,10 +45,6 @@ router.get('/user/:user_info_id', async (req, res) => {
             [user_info_id]
         )
 
-        /*if (userGamesResult.rows.length === 0) {
-            return res.status(404).json(`У пользователя с id ${user_info_id} нет игр`);
-        }*/
-
         // Извлечение массива game_id из результата
         const gameIds = userGamesResult.rows.map(row => row.game_id)
 
@@ -84,6 +80,32 @@ router.get('/',async(req,res) =>{
     }catch(error){
         console.error('Ошибка при выполнении запроса',error.stack)
         res.status(500).json({error:"Ошибка сервера", details:error.message})
+    }
+})
+
+// DELETE - Запрос на удаление игры у пользователя
+router.delete('/delete-game',async(req,res)=>{
+    try{
+        const {user_info_id,game_id}=req.body
+        
+        const check = await dbClient.query(
+            'SELECT * FROM user_games WHERE user_info_id=$1 AND game_id=$2',
+            [user_info_id,game_id]
+        )
+
+        if(check.rows.length===0)
+            return res.status(404).json('Пользователь с данной игрой не найден')
+
+        // Удаляем игру у пользователя
+        await dbClient.query(
+            'DELETE FROM user_games WHERE user_info_id = $1 AND game_id = $2',
+            [user_info_id, game_id]
+        )
+
+        res.status(200).json('Данные пользователя успешно удалены')
+    } catch(error){
+        console.error('Ошибка при выполнении запроса',error.stack)
+        res.status(500).json({error:"Ошибка сервера",details:error.message})
     }
 })
 
