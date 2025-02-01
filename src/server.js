@@ -1,5 +1,6 @@
 import http from 'http'
 import express from 'express'
+import { swaggerUi,swaggerDocs } from './swagger.js'
 import gamesRouter from './routes/games.js'
 import authRouter from './routes/auth.js'
 import signUpRouter from './routes/sign-up.js'
@@ -9,6 +10,8 @@ import userGamesRouter from './routes/user-games.js'
 const app = express()
 
 app.use(express.json())
+
+app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerDocs))
 
 // Middleware для CORS
 app.use((req,res,next) =>{
@@ -43,6 +46,8 @@ app.use((req,res)=> {
 
 // Запуск сервера
 const PORT = process.env.PORT||3000
+
 http.createServer(app).listen(PORT,() => {
-  console.log(`Сервер запущен на http://localhost:${PORT}`)
+  console.log(`🚀 Сервер запущен на http://localhost:${PORT}`)
+  console.log(`📜 Документация API: http://localhost:${PORT}/api-docs`)
 })

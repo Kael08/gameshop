@@ -3,6 +3,24 @@ import express from 'express'
 const router = express.Router()
 
 // GET- Запрос на получение всех игр
+/**
+ * @swagger
+ * /games:
+ *   get:
+ *     summary: Получение списка всех игр
+ *     description: Возвращает список всех игр из базы данных.
+ *     responses:
+ *       200:
+ *         description: Успешный ответ с массивом игр
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/game'
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/',async(req,res)=>{
     try {
         // Запрос в SQL
@@ -21,6 +39,31 @@ router.get('/',async(req,res)=>{
 })
 
 // GET-запрос с фильтрацией по жанру
+/**
+ * @swagger
+ * /games/{genres}:
+ *   get:
+ *     summary: Получение игр по жанрам
+ *     description: Возвращает список игр, соответствующих переданным жанрам.
+ *     parameters:
+ *       - in: path
+ *         name: genres
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Жанры через запятую (например, "Action,RPG").
+ *     responses:
+ *       200:
+ *         description: Успешный ответ с массивом игр
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/game"
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/:genres',async(req,res)=> {
     const {genres} = req.params
     try {
@@ -46,6 +89,24 @@ router.get('/:genres',async(req,res)=> {
 })
 
 // POST - запрос на добавление игры
+/**
+ * @swagger
+ * /games:
+ *   post:
+ *     summary: Добавление новой игры
+ *     description: Создает новую игру в базе данных.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/gameReq"
+ *     responses:
+ *       201:
+ *         description: Игра успешно добавлена
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.post('/',async(req,res)=> {
     const {name,price,genres,game_img,description,rating,developer} = req.body
     try{
@@ -62,6 +123,28 @@ router.post('/',async(req,res)=> {
 })
 
 // DELETE - запрос на удаление игры
+/**
+ * @swagger
+ * /games:
+ *   delete:
+ *     summary: Удаление игры
+ *     description: Удаляет игру из базы данных по её ID.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               game_id:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Игра успешно удалена
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.delete('/',async(req,res)=> {
     const {game_id} = req.body
     try{
@@ -74,6 +157,31 @@ router.delete('/',async(req,res)=> {
 })
 
 // GET - запрос на получение игры по её id
+/**
+ * @swagger
+ * /games/gamePage/{game_id}:
+ *   get:
+ *     summary: Получение информации об игре
+ *     description: Возвращает информацию об игре по её ID.
+ *     parameters:
+ *       - in: path
+ *         name: game_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID игры
+ *     responses:
+ *       200:
+ *         description: Успешный ответ с информацией об игре
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/game"
+ *       404:
+ *         description: Игра не найдена
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/gamePage/:game_id', async(req,res)=> {
     const {game_id} = req.params
     try {

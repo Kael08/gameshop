@@ -3,6 +3,57 @@ import express from 'express'
 const router =express.Router()
 
 // POST - Запрос для регистрации пользователя
+/**
+ * @swagger
+ * /sign-up:
+ *   post:
+ *     summary: Регистрация нового пользователя
+ *     description: Создает нового пользователя с логином, паролем и никнеймом.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/SignUpReq"
+ *     responses:
+ *       201:
+ *         description: Успешная регистрация, пользователь добавлен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/SignUpRes"
+ *       400:
+ *         description: Ошибка валидации. Возможные причины
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Логин, пароль и имя пользователя обязательны"
+ *       409:
+ *         description: Конфликт - логин или никнейм уже занят
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Данный логин уже занят!"
+ *       500:
+ *         description: Ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Ошибка сервера"
+ */
+
 router.post('/',async(req,res)=>{
     const {login,password,username} = req.body
 

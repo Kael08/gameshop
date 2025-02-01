@@ -2,7 +2,25 @@ import dbClient from "../db/client.js"
 import express from "express"
 const router = express.Router()
 
-// GET - Запрос на получение учетный данных пользователей
+// GET - Запрос на получение ЛИ пользователей
+/**
+ * @swagger
+ * /users/info:
+ *   get:
+ *     summary: Получение всех записей с личной информацией
+ *     description: Возвращает все записи с личной информацией
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/UserInfoRes"
+ *                 
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/info',async(req,res)=>{
     try{
         const result = await dbClient.query(
@@ -20,6 +38,29 @@ router.get('/info',async(req,res)=>{
 })
 
 // GET -Запрос на получение ЛИ юзера по id
+/**
+ * @swagger
+ * /users/info/{user_info_id}:
+ *   get:
+ *     summary: Получение записи с личной информацией пользователя по его ID
+ *     description: Возвращает запись с личной информацией пользователя по его ID
+ *     parameters:
+ *       - in: path
+ *         name: user_info_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: id пользователя
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/UserInfoRes"
+ *                 
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/info/:user_info_id',async(req,res)=>{
     const {user_info_id} = req.params
     try{
@@ -44,6 +85,35 @@ router.get('/info/:user_info_id',async(req,res)=>{
 })
 
 // post - запрос на добавление email
+/**
+ * @swagger
+ * /users/info/addEmail:
+ *   post:
+ *     summary: Добавление/изменение почты
+ *     description: Добавляет или обновляет эл. почту в базе данных.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_info_id:
+ *                 type: integer
+ *                 example: 1
+ *               email:
+ *                 type: string
+ *                 example: email@email.com
+ *     responses:
+ *       200:
+ *         description: Почта успешно добавлена
+ *       500:
+ *         description: Ошибка сервера
+ *       400:
+ *         description: Данная почта уже занята
+ *       404:
+ *         description: Пользователь не найден
+ */
 router.post('/info/addEmail',async(req,res)=>{
     const{user_info_id,email} = req.body
     try{
@@ -77,6 +147,33 @@ router.post('/info/addEmail',async(req,res)=>{
 })
 
 // post - запрос на добавление bio
+/**
+ * @swagger
+ * /users/info/addBio:
+ *   post:
+ *     summary: Добавление/изменение информации о себе
+ *     description: Добавляет или обновляет информации о себе в базе данных.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_info_id:
+ *                 type: integer
+ *                 example: 1
+ *               bio:
+ *                 type: string
+ *                 example: text about me
+ *     responses:
+ *       200:
+ *         description: bio успешно добавлен
+ *       500:
+ *         description: Ошибка сервера
+ *       404:
+ *         description: Пользователь не найден
+ */
 router.post('/info/addBio',async(req,res)=>{
     const{user_info_id,bio} = req.body
     try{
@@ -102,6 +199,34 @@ router.post('/info/addBio',async(req,res)=>{
 })
 
 // post - запрос на добавление аватара
+/**
+ * @swagger
+ * /users/info/addImage:
+ *   post:
+ *     summary: Добавление/изменение аватара
+ *     description: Добавляет или обновляет аватар в базе данных.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_info_id:
+ *                 type: integer
+ *                 example: 1
+ *               image_data:
+ *                 type: string
+ *                 format: binary
+ *                 example: /9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAMCAggICAgICAgICAgICAgICAgICA...AAAAAAAAAAAA//9k=
+ *     responses:
+ *       200:
+ *         description: аватар успешно обновлен
+ *       500:
+ *         description: Ошибка сервера
+ *       404:
+ *         description: Пользователь не найден
+ */
 router.post('/info/addImage',async(req,res)=>{
     const {user_info_id,image_data} = req.body
     try{
@@ -111,7 +236,7 @@ router.post('/info/addImage',async(req,res)=>{
         )
 
         if(idCheck.rows===0)
-            return res.status(400).json({error:'Пользователь не найден'})
+            return res.status(404).json({error:'Пользователь не найден'})
 
         const imageBuffer = Buffer.from(image_data,'base64')
 
@@ -120,7 +245,7 @@ router.post('/info/addImage',async(req,res)=>{
             [imageBuffer,user_info_id]
         )
 
-        res.status(201).json('Аватар пользователя успешно добавлен')
+        res.status(200).json('Аватар пользователя успешно добавлен')
 
     } catch(error){
         console.error('Ошибка при выполнении запроса ',error.stack)
@@ -128,7 +253,25 @@ router.post('/info/addImage',async(req,res)=>{
     }
 })
 
-// GET - Запрос на получение личной информации пользователей
+// GET - Запрос на получение учетных данных пользователей
+/**
+ * @swagger
+ * /users/credential:
+ *   get:
+ *     summary: Получение всех учетных данных пользователей
+ *     description: Возвращает все учетные данные пользователей
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/UserCredentialRes"
+ *                 
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/credential',async(req,res)=>{
     try{
         const result = await dbClient.query
@@ -144,6 +287,29 @@ router.get('/credential',async(req,res)=>{
 })
 
 // GET - Запрос на получение УД юзера по id
+/**
+ * @swagger
+ * /users/credential/{user_credential_id}:
+ *   get:
+ *     summary: Получение учетных данных пользователя по его ID
+ *     description: Возвращает учетные данные пользователя по его ID
+ *     parameters:
+ *       - in: path
+ *         name: user_credential_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: id пользователя
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/UserCredentialRes"
+ *                 
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/credential/:user_credential_id',async(req,res)=>{
     const {user_credential_id} = req.params
     try{
@@ -164,6 +330,27 @@ router.get('/credential/:user_credential_id',async(req,res)=>{
 })
 
 // delete - запрос на удаление пользователя
+/**
+ * @swagger
+ * /users/delete/{user_id}:
+ *   delete:
+ *     summary: Удаление пользователя
+ *     description: Удаляет пользователя из БД
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: id пользователя.
+ *     responses:
+ *       200:
+ *         description: Данные пользователя успешно удалены
+ *       500:
+ *         description: Ошибка сервера
+ *       404:
+ *         description: Пользователь не найден
+ */
 router.delete('/delete/:user_id',async(req,res) => {
     const {user_id} = req.params
     try {
@@ -185,11 +372,29 @@ router.delete('/delete/:user_id',async(req,res) => {
         res.status(200).json('Данные пользователя успешно удалены')
     } catch(error) {
         console.error('Ошибка при выполнении запроса', error.stack)
-        res.status(500).send('Ошибка удаления игры')
+        res.status(500).send('Ошибка сервера')
     }
 })
 
 // GET - запрос на получение списка из логина, пароля и никнейма юзера
+/**
+ * @swagger
+ * /users/credential:
+ *   get:
+ *     summary: Получение всех учетных данных пользователей
+ *     description: Возвращает все учетные данные пользователей
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/UserCredentialRes"
+ *                 
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/',async(req,res)=>{
     try{
         const result = await dbClient.query(

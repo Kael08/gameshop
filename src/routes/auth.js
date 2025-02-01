@@ -3,6 +3,30 @@ import express from  'express'
 const router = express.Router()
 
 // POST - Запрос для авторизации пользователя
+/**
+ * @swagger
+ * /auth:
+ *   post:
+ *     summary: Аутентификация пользователя
+ *     description: Авторизация с логином и паролем.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/AuthReq"
+ *     responses:
+ *       200:
+ *         description: Успешная авторизация, возвращает информацию о пользователе
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/AuthRes"
+ *       400:
+ *         description: Неправильный логин или пароль
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.post('/',async(req,res)=>{
     const {login,password} = req.body
     try{
@@ -12,7 +36,7 @@ router.post('/',async(req,res)=>{
         )
 
         if(data.rows.length ===0){
-            return res.status(404).json(`Неправильный логин`)
+            return res.status(400).json(`Неправильный логин`)
         }
 
         if(data.rows[0].password!=password){

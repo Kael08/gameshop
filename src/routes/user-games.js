@@ -3,6 +3,31 @@ import express from "express"
 const router = express.Router()
 
 // Post - запрос на добавление игры к пользователю
+/**
+ * @swagger
+ * /user-games/add:
+ *   post:
+ *     summary: Добавление новой игры к пользователю
+ *     description: Создает в бд новую игру у пользователя
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_info_id:
+ *                 type: integer
+ *                 example: 1
+ *               game_id:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Игра успешно добавлена в библиотеку пользователя
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.post('/add',async(req,res)=>{
     const {user_info_id,game_id} = req.body
     try{
@@ -36,6 +61,37 @@ router.post('/add',async(req,res)=>{
 })
 
 // Get-запрос для получения всех игр пользователя
+/**
+ * @swagger
+ * /user-games/user/{user_info_id}:
+ *   get:
+ *     summary: Получение всех игр пользователя
+ *     description: Возвращает название игр пользователя.
+ *     parameters:
+ *       - in: path
+ *         name: user_info_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: id пользователя
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     example: "Cyberpunk 2077"
+ *                 
+ *       500:
+ *         description: Ошибка сервера
+ *       404:
+ *         description: Игры пользователя не найдены
+ */
 router.get('/user/:user_info_id', async (req, res) => {
     const { user_info_id } = req.params
     try {
@@ -64,9 +120,34 @@ router.get('/user/:user_info_id', async (req, res) => {
         console.error('Ошибка при выполнении запроса', error.stack)
         res.status(500).json({ error: "Ошибка сервера", details: error.message })
     }
-});
+})
 
 //GET - запрос на получение имени пользователя и его игр
+/**
+ * @swagger
+ * /user-games:
+ *   get:
+ *     summary: Получение всех пользователей и их игр
+ *     description: Возвращает имена пользователей с их играми.
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                     example: "Мингиян"
+ *                   game_name:
+ *                     type: string
+ *                     example: Cyberpunk 2077
+ *                 
+ *       500:
+ *         description: Ошибка сервера
+ */
 router.get('/',async(req,res) =>{
     try{
         const userGames = await dbClient.query(
@@ -84,6 +165,33 @@ router.get('/',async(req,res) =>{
 })
 
 // DELETE - Запрос на удаление игры у пользователя
+/**
+ * @swagger
+ * /user-games/delete-game:
+ *   delete:
+ *     summary: Удаление игры у пользователя
+ *     description: Удаляет игру пользователя.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_info_id:
+ *                 type: integer
+ *                 example: 1
+ *               game_id:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Данные пользователя успешно удалены
+ *       500:
+ *         description: Ошибка сервера
+ *       404:
+ *         description: Пользователь с данной игрой не найден
+ */
 router.delete('/delete-game',async(req,res)=>{
     try{
         const {user_info_id,game_id}=req.body
